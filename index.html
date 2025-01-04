@@ -1,196 +1,233 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HRACK - MINES</title>
     <style>
-        /* Estilos gerais */
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1d3557, #457b9d);
-            color: #f1faee;
-            text-align: center;
             margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            text-align: center;
         }
 
         h1 {
-            margin-bottom: 10px;
-            font-size: 2.5rem;
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            margin: 0;
+            font-size: 2.5em;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        h2 {
-            margin-top: 30px;
-            font-size: 1.8rem;
-            color: #a8dadc;
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            grid-gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .square {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0e0e0;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            transition: transform 0.2s, background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .square:hover {
+            transform: scale(1.1);
+            background-color: #d4edda;
         }
 
         button {
-            padding: 12px 24px;
-            font-size: 1rem;
-            background-color: #457b9d;
-            color: #f1faee;
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease;
+            margin: 10px 0; /* Alinha botões verticalmente */
+            width: 100%; /* Largura total */
+            transition: background-color 0.3s, box-shadow 0.3s;
         }
 
-        button:hover {
-            background-color: #1d3557;
+        button:active {
+            transform: scale(0.97);
         }
 
-        .tabuleiro {
-            display: grid;
-            grid-template-columns: repeat(5, 60px);
-            grid-gap: 8px;
-            justify-content: center;
-            margin: 20px auto;
+        #shuffleButton {
+            background-color: #007BFF;
         }
 
-        .quadrado {
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            background-color: #f1faee;
-            color: #1d3557;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.3s ease;
+        #shuffleButton:hover {
+            background-color: #0056b3;
+            box-shadow: 0 6px 12px rgba(0, 91, 187, 0.3);
         }
 
-        .quadrado.bomba {
-            background-color: #e63946;
-            color: #f1faee;
+        #copyButton {
+            background-color: #4CAF50;
         }
 
-        .quadrado.estrela {
-            background-color: #a8dadc;
-            color: #1d3557;
+        #copyButton:hover {
+            background-color: #45a049;
+            box-shadow: 0 6px 12px rgba(0, 191, 89, 0.3);
         }
 
-        .quadrado:hover {
-            transform: scale(1.1);
-        }
-
-        #apiResult {
-            font-size: 1rem;
-            margin-top: 20px;
+        #quantityInput {
+            padding: 10px;
+            font-size: 18px;
+            width: 430px; /* Largura total */
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 10px; /* Margem para separar do botão */
         }
 
         footer {
-            margin-top: 40px;
-            font-size: 0.9rem;
-            color: #a8dadc;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
         }
 
         footer a {
-            color: #f1faee;
+            color: #007BFF;
             text-decoration: none;
-            border-bottom: 1px solid #f1faee;
-            transition: color 0.3s ease;
         }
 
         footer a:hover {
-            color: #e63946;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <h1>HRACK - MINES</h1>
-    <p>Crie seu tabuleiro clicando nos quadrados para alternar entre estrela (⭐) e bomba (💣).</p>
-    <div id="tabuleiro" class="tabuleiro"></div>
-    <button onclick="processLayout()">Enviar</button>
-    <div id="apiResult"></div>
-
+    <div class="container">
+        <div class="grid" id="grid">
+            <!-- Quadrados serão gerados dinamicamente aqui -->
+        </div>
+        <div>
+            <input type="number" id="quantityInput" min="0" max="25" placeholder="Número de Estrelas" />
+            <button id="shuffleButton">Play ⭐</button>
+            <button id="copyButton">Copiar Tabuleiro</button>
+        </div>
+    </div>
     <footer>
-        Desenvolvido com 💻 por <a href="#">MHOTEX</a>
+        Feito com 💻 por <a href="#">MHOTEX</a>.
     </footer>
 
     <script>
-        const tabuleiro = document.getElementById("tabuleiro");
-        const apiResult = document.getElementById("apiResult");
+        const grid = document.getElementById('grid');
+        const copyButton = document.getElementById('copyButton');
+        const shuffleButton = document.getElementById('shuffleButton');
+        const quantityInput = document.getElementById('quantityInput');
+        let squares = [];
 
-        // Inicializa o tabuleiro 5x5 com estrelas
-        const layout = Array(5).fill().map(() => Array(5).fill("⭐"));
+        // Inicializa a grid com 💣
+        for (let i = 0; i < 25; i++) {
+            const square = document.createElement('div');
+            square.classList.add('square');
+            square.textContent = '💣';
+            square.addEventListener('click', () => toggleSquare(square));
+            grid.appendChild(square);
+            squares.push(square);
+        }
 
-        // Renderiza o tabuleiro na tela
-        function renderTabuleiro() {
-            tabuleiro.innerHTML = ""; // Limpa o tabuleiro anterior
-            layout.forEach((row, rowIndex) => {
-                row.forEach((cell, colIndex) => {
-                    const quadrado = document.createElement("div");
-                    quadrado.className = `quadrado ${cell === "💣" ? "bomba" : "estrela"}`;
-                    quadrado.textContent = cell;
+        // Função para alternar entre ⭐ e 💣
+        function toggleSquare(square) {
+            if (square.textContent === '💣') {
+                square.textContent = '⭐';
+            } else {
+                square.textContent = '💣';
+            }
+        }
 
-                    // Alternar estado no clique
-                    quadrado.onclick = () => {
-                        if (layout[rowIndex][colIndex] === "⭐") {
-                            layout[rowIndex][colIndex] = "💣";
-                        } else {
-                            layout[rowIndex][colIndex] = "⭐";
-                        }
-                        renderTabuleiro(); // Re-renderiza o tabuleiro
-                    };
+        // Função para embaralhar o tabuleiro com a quantidade de ⭐ escolhida
+        function shuffleBoard() {
+            const quantity = parseInt(quantityInput.value, 10);
 
-                    tabuleiro.appendChild(quadrado);
+            if (isNaN(quantity) || quantity < 0 || quantity > 25) {
+                alert('Por favor, insira um número entre 0 e 25.');
+                return;
+            }
+
+            // Reseta todos os quadrados para 💣
+            squares.forEach(square => square.textContent = '💣');
+
+            // Embaralha os índices
+            const indices = Array.from({ length: 25 }, (_, i) => i);
+            for (let i = indices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indices[i], indices[j]] = [indices[j], indices[i]];
+            }
+
+            // Define os primeiros `quantity` quadrados como ⭐
+            for (let i = 0; i < quantity; i++) {
+                squares[indices[i]].textContent = '⭐';
+            }
+        }
+
+        // Função para copiar o tabuleiro
+        function copyBoard() {
+            let boardText = '';
+            for (let i = 0; i < 25; i++) {
+                boardText += squares[i].textContent;
+                if (i % 5 === 4) {
+                    boardText += '\n';
+                } else {
+                    boardText += ' ';
+                }
+            }
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(boardText).then(() => {
+                    alert('Tabuleiro copiado!');
+                }).catch(err => {
+                    console.error('Erro ao copiar o tabuleiro com Clipboard API:', err);
+                    fallbackCopy(boardText);
                 });
-            });
+            } else {
+                fallbackCopy(boardText);
+            }
         }
 
-        // Processa o layout e faz a chamada para a API
-        function processLayout() {
-            // Converte o layout para a chave ID
-            const chaveID = layout
-                .flat()
-                .map(cell => (cell === "⭐" ? "0" : "1"))
-                .join("");
-
-            const apiUrl = `https://hrackmines.github.io/Api/v1/${chaveID}.txt`;
-
-            // Faz a requisição para a API
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error("Erro ao acessar a API.");
-                    return response.json();
-                })
-                .then(data => {
-                    renderAPIResult(data);
-                })
-                .catch(error => {
-                    apiResult.innerHTML = `<p style="color: #e63946;">Erro: ${error.message}</p>`;
-                });
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'absolute';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('Tabuleiro copiado usando fallback!');
         }
 
-        // Exibe o resultado da API em outro tabuleiro
-        function renderAPIResult(data) {
-            apiResult.innerHTML = "<h2>Resultado Final</h2>";
-            const resultTabuleiro = document.createElement("div");
-            resultTabuleiro.className = "tabuleiro";
-
-            Object.entries(data).forEach(([key, value]) => {
-                const quadrado = document.createElement("div");
-                quadrado.className = `quadrado ${value === "true" ? "bomba" : "estrela"}`;
-                quadrado.textContent = value === "true" ? "💣" : "⭐";
-                resultTabuleiro.appendChild(quadrado);
-            });
-
-            apiResult.appendChild(resultTabuleiro);
-        }
-
-        // Inicializa o tabuleiro na tela
-        renderTabuleiro();
+        // Eventos
+        copyButton.addEventListener('click', copyBoard);
+        shuffleButton.addEventListener('click', shuffleBoard);
     </script>
 </body>
 </html>
