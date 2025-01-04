@@ -129,7 +129,7 @@
         </div>
         <div>
             <input type="number" id="quantityInput" min="0" max="25" placeholder="Número de Estrelas" />
-            <button id="shuffleButton">Play ⭐</button>
+            <button id="shuffleButton">Play 💣</button>
             <button id="copyButton">Copiar Tabuleiro</button>
         </div>
     </div>
@@ -144,26 +144,26 @@
         const quantityInput = document.getElementById('quantityInput');
         let squares = [];
 
-        // Inicializa a grid com 💣
+        // Inicializa a grid com ⭐
         for (let i = 0; i < 25; i++) {
             const square = document.createElement('div');
             square.classList.add('square');
-            square.textContent = '💣';
+            square.textContent = '⭐';
             square.addEventListener('click', () => toggleSquare(square));
             grid.appendChild(square);
             squares.push(square);
         }
 
-        // Função para alternar entre ⭐ e 💣
+        // Função para alternar entre 💣 e ⭐
         function toggleSquare(square) {
-            if (square.textContent === '💣') {
-                square.textContent = '⭐';
-            } else {
+            if (square.textContent === '⭐') {
                 square.textContent = '💣';
+            } else {
+                square.textContent = '⭐';
             }
         }
 
-        // Função para embaralhar o tabuleiro com a quantidade de ⭐ escolhida
+        // Função para embaralhar o tabuleiro com a quantidade de 💣 escolhida
         function shuffleBoard() {
             const quantity = parseInt(quantityInput.value, 10);
 
@@ -172,8 +172,8 @@
                 return;
             }
 
-            // Reseta todos os quadrados para 💣
-            squares.forEach(square => square.textContent = '💣');
+            // Reseta todos os quadrados para ⭐
+            squares.forEach(square => square.textContent = '⭐');
 
             // Embaralha os índices
             const indices = Array.from({ length: 25 }, (_, i) => i);
@@ -182,9 +182,9 @@
                 [indices[i], indices[j]] = [indices[j], indices[i]];
             }
 
-            // Define os primeiros `quantity` quadrados como ⭐
+            // Define os primeiros `quantity` quadrados como 💣
             for (let i = 0; i < quantity; i++) {
-                squares[indices[i]].textContent = '⭐';
+                squares[indices[i]].textContent = '💣';
             }
         }
 
