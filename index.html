@@ -99,7 +99,6 @@
         function moveBombsUntilPercentage() {
             attempt = 0;
             showLoading();
-            document.getElementById("finalContainer").style.display = "block"; // Exibe o tabuleiro final
             const interval = setInterval(() => {
                 attempt++;
                 attemptCounter.textContent = `Tentativas: ${Math.min(attempt, 100)}%`;
@@ -114,7 +113,6 @@
         }
 
         function updateBombAttempts() {
-            // Em cada tentativa, simula a ocorrência de uma bomba em um quadrado
             const bombCount = parseInt(bombCountInput.value);
             const positions = [...Array(squareCount).keys()];
             shuffleArray(positions);
@@ -149,10 +147,17 @@
         }
 
         function finalizeGame() {
-            // Finaliza o jogo mostrando os quadrados com a menor quantidade de tentativas
             finalSquares.forEach(square => {
                 square.classList.add(square.classList.contains("green") ? "green" : "red");
             });
+            document.getElementById("finalContainer").style.display = "block";
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const randomIndex = Math.floor(Math.random() * (i + 1));
+                [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
+            }
         }
 
         function showLoading() {
