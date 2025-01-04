@@ -135,7 +135,8 @@
                 finalSquares.push(square);
                 square.textContent = `${count}%`;
 
-                if (count === Math.min(...bombAttempts)) {
+                // Agora, o quadrado com a maior porcentagem será verde
+                if (count === Math.max(...bombAttempts)) {
                     square.classList.add("green");
                 } else if (count > Math.min(...bombAttempts) && count < Math.max(...bombAttempts)) {
                     square.classList.add("yellow");
@@ -189,4 +190,4 @@
         playUntilPercentageButton.addEventListener("click", moveBombsUntilPercentage);
     </script>
 </body>
-</
+</html>
