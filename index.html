@@ -1,1 +1,196 @@
-Atualizando...
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRACK - MINES</title>
+    <style>
+        /* Estilos gerais */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1d3557, #457b9d);
+            color: #f1faee;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            margin-top: 30px;
+            font-size: 1.8rem;
+            color: #a8dadc;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            background-color: #457b9d;
+            color: #f1faee;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #1d3557;
+        }
+
+        .tabuleiro {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            grid-gap: 8px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+
+        .quadrado {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            background-color: #f1faee;
+            color: #1d3557;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+        }
+
+        .quadrado.bomba {
+            background-color: #e63946;
+            color: #f1faee;
+        }
+
+        .quadrado.estrela {
+            background-color: #a8dadc;
+            color: #1d3557;
+        }
+
+        .quadrado:hover {
+            transform: scale(1.1);
+        }
+
+        #apiResult {
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #a8dadc;
+        }
+
+        footer a {
+            color: #f1faee;
+            text-decoration: none;
+            border-bottom: 1px solid #f1faee;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #e63946;
+        }
+    </style>
+</head>
+<body>
+    <h1>HRACK - MINES</h1>
+    <p>Crie seu tabuleiro clicando nos quadrados para alternar entre estrela (⭐) e bomba (💣).</p>
+    <div id="tabuleiro" class="tabuleiro"></div>
+    <button onclick="processLayout()">Enviar</button>
+    <div id="apiResult"></div>
+
+    <footer>
+        Desenvolvido com 💻 por <a href="#">MHOTEX</a>
+    </footer>
+
+    <script>
+        const tabuleiro = document.getElementById("tabuleiro");
+        const apiResult = document.getElementById("apiResult");
+
+        // Inicializa o tabuleiro 5x5 com estrelas
+        const layout = Array(5).fill().map(() => Array(5).fill("⭐"));
+
+        // Renderiza o tabuleiro na tela
+        function renderTabuleiro() {
+            tabuleiro.innerHTML = ""; // Limpa o tabuleiro anterior
+            layout.forEach((row, rowIndex) => {
+                row.forEach((cell, colIndex) => {
+                    const quadrado = document.createElement("div");
+                    quadrado.className = `quadrado ${cell === "💣" ? "bomba" : "estrela"}`;
+                    quadrado.textContent = cell;
+
+                    // Alternar estado no clique
+                    quadrado.onclick = () => {
+                        if (layout[rowIndex][colIndex] === "⭐") {
+                            layout[rowIndex][colIndex] = "💣";
+                        } else {
+                            layout[rowIndex][colIndex] = "⭐";
+                        }
+                        renderTabuleiro(); // Re-renderiza o tabuleiro
+                    };
+
+                    tabuleiro.appendChild(quadrado);
+                });
+            });
+        }
+
+        // Processa o layout e faz a chamada para a API
+        function processLayout() {
+            // Converte o layout para a chave ID
+            const chaveID = layout
+                .flat()
+                .map(cell => (cell === "⭐" ? "0" : "1"))
+                .join("");
+
+            const apiUrl = `https://hrackmines.github.io/Api/v1/${chaveID}.txt`;
+
+            // Faz a requisição para a API
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error("Erro ao acessar a API.");
+                    return response.json();
+                })
+                .then(data => {
+                    renderAPIResult(data);
+                })
+                .catch(error => {
+                    apiResult.innerHTML = `<p style="color: #e63946;">Erro: ${error.message}</p>`;
+                });
+        }
+
+        // Exibe o resultado da API em outro tabuleiro
+        function renderAPIResult(data) {
+            apiResult.innerHTML = "<h2>Resultado Final</h2>";
+            const resultTabuleiro = document.createElement("div");
+            resultTabuleiro.className = "tabuleiro";
+
+            Object.entries(data).forEach(([key, value]) => {
+                const quadrado = document.createElement("div");
+                quadrado.className = `quadrado ${value === "true" ? "bomba" : "estrela"}`;
+                quadrado.textContent = value === "true" ? "💣" : "⭐";
+                resultTabuleiro.appendChild(quadrado);
+            });
+
+            apiResult.appendChild(resultTabuleiro);
+        }
+
+        // Inicializa o tabuleiro na tela
+        renderTabuleiro();
+    </script>
+</body>
+</html>
