@@ -99,6 +99,7 @@
         function moveBombsUntilPercentage() {
             attempt = 0;
             showLoading();
+            document.getElementById("finalContainer").style.display = "block"; // Exibe o tabuleiro final logo após o clique
             const interval = setInterval(() => {
                 attempt++;
                 attemptCounter.textContent = `Tentativas: ${Math.min(attempt, 100)}%`;
@@ -150,7 +151,6 @@
             finalSquares.forEach(square => {
                 square.classList.add(square.classList.contains("green") ? "green" : "red");
             });
-            document.getElementById("finalContainer").style.display = "block";
         }
 
         function shuffleArray(array) {
@@ -189,4 +189,4 @@
         playUntilPercentageButton.addEventListener("click", moveBombsUntilPercentage);
     </script>
 </body>
-</html>
+</
