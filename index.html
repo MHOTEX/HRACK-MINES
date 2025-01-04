@@ -179,8 +179,7 @@
             <h2>Configurações</h2>
             <label for="bombCountInput">Número de bombas (1-24):</label>
             <input type="number" id="bombCountInput" min="1" max="24" value="1" />
-            <div><button id="playButton">Play (Embaralhar Bombas)</button>
-                <button id="playUntilPercentageButton">Play até encontrar %</button></div>
+            <div><button id="generateRandomButton">Gerar Aleatoriamente</button></div>
         </div>
         <div>
             <h2>Tabuleiro de Marcações</h2>
@@ -199,15 +198,14 @@
     </div>
     <div id="loadingDialog">
         <div class="spinner"></div>
-        <p id="attemptCounter">Tentativas: 0</p>
+        <p id="attemptCounter">Tentativas: 1%</p>
     </div>
     <script>
         const markGrid = document.getElementById("markGrid"),
             finalGrid = document.getElementById("finalGrid"),
             emojiGrid = document.getElementById("emojiGrid"),
             bombCountInput = document.getElementById("bombCountInput"),
-            playButton = document.getElementById("playButton"),
-            playUntilPercentageButton = document.getElementById("playUntilPercentageButton"),
+            generateRandomButton = document.getElementById("generateRandomButton"),
             loadingDialog = document.getElementById("loadingDialog"),
             attemptCounter = document.getElementById("attemptCounter"),
             copyButton = document.getElementById("copyButton");
@@ -216,15 +214,18 @@
             finalSquares = [],
             emojiSquares = [],
             markedBombs = [],
-            squareCount = 25;
+            squareCount = 25,
+            bombFrequencies = [];
 
         function initializeMarkBoard() {
-            markSquares = [], markedBombs = [], markGrid.innerHTML = "";
+            markSquares = [], markedBombs = [], bombFrequencies = [];
+            markGrid.innerHTML = "";
             for (let e = 0; e < squareCount; e++) {
                 const t = document.createElement("div");
                 t.classList.add("square"), t.textContent = "",
                 t.addEventListener("click", () => handleMarkSquareClick(t, e)),
                 markGrid.appendChild(t), markSquares.push(t);
+                bombFrequencies.push(0); // Inicializa a frequência de bombas
             }
         }
 
@@ -233,30 +234,14 @@
             markedBombs.includes(t) ? (e.classList.remove("bomb"), e.textContent = "", markedBombs = markedBombs.filter(e => e !== t)) : markedBombs.length < n && (e.classList.add("bomb"), e.textContent = "💣", markedBombs.push(t));
         }
 
-        function moveBombs() {
-            generateFinalBoard(false);
-        }
-
-        function moveBombsUntilSquares() {
-            let e = 0;
-            showLoading();
-            const o = setInterval(() => {
-                attemptCounter.textContent = `Tentativas: ${++e}`;
-                if (generateFinalBoard(true)) {
-                    clearInterval(o);
-                    hideLoading();
-                }
-            }, 100);
-        }
-
-        function generateFinalBoard(e) {
+        function generateFinalBoard() {
             const t = parseInt(bombCountInput.value);
             if (t < 1 || t > 24) return alert("Número de bombas deve ser entre 1 e 24."), false;
 
             markedBombs.length !== t && alert(`Marque exatamente ${t} bombas.`) && false;
             finalGrid.innerHTML = "", finalSquares = [];
             const o = [...Array(squareCount).keys()];
-            shuffleArray(o), emojiGrid.innerHTML = "", emojiSquares = [];
+            shuffleArray(o);
 
             for (let e = 0; e < squareCount; e++) {
                 const t = document.createElement("div");
@@ -267,33 +252,38 @@
                 const t = Math.floor(Math.random() * o.length);
                 const n = o.splice(t, 1)[0];
                 finalSquares[n].classList.add("bomb"), finalSquares[n].textContent = "💣";
+                bombFrequencies[n]++; // Atualiza a frequência da bomba no quadrado
             }
 
-            finalSquares.forEach((t, n) => {
-                if (!t.classList.contains("bomb")) {
-                    const n = Math.random() * 100;
-                    t.textContent = `${Math.floor(n)}%`, 
-                    n >= 90 ? t.classList.add("green") :
-                    n >= 70 ? t.classList.add("yellow") :
-                    t.classList.add("red");
-                }
+            // Atualiza a cor e a porcentagem
+            updateSquareColors();
 
-                const c = document.createElement("div");
-                c.classList.add("square"), c.textContent = t.classList.contains("bomb") ? "💣" : t.textContent;
-                emojiGrid.appendChild(c), emojiSquares.push(c);
+            finalSquares.forEach((t, n) => {
+                const percentage = (bombFrequencies[n] / t.classList.contains("bomb") ? 1 : 0) * 100;
+                t.textContent = `${percentage.toFixed(1)}%`; // Atualiza a porcentagem no quadrado
+
+                emojiSquares.push(t);
             });
 
             document.getElementById("finalContainer").style.display = "block";
             document.getElementById("emojiContainer").style.display = "block";
-            e;
         }
 
-        function showLoading() {
-            loadingDialog.style.display = "flex";
-        }
+        function updateSquareColors() {
+            const maxFrequency = Math.max(...bombFrequencies);
+            const minFrequency = Math.min(...bombFrequencies);
 
-        function hideLoading() {
-            loadingDialog.style.display = "none";
+            finalSquares.forEach((square, index) => {
+                const frequency = bombFrequencies[index];
+                const percentage = (frequency - minFrequency) / (maxFrequency - minFrequency) * 100;
+                if (percentage >= 70) {
+                    square.classList.add("green");
+                } else if (percentage >= 40) {
+                    square.classList.add("yellow");
+                } else {
+                    square.classList.add("red");
+                }
+            });
         }
 
         function shuffleArray(e) {
@@ -307,8 +297,7 @@
             initializeMarkBoard();
         };
 
-        playButton.addEventListener("click", moveBombs);
-        playUntilPercentageButton.addEventListener("click", moveBombsUntilSquares);
+        generateRandomButton.addEventListener("click", generateFinalBoard);
         copyButton.addEventListener("click", () => {
             let e = "";
             emojiSquares.forEach((t, n) => {
