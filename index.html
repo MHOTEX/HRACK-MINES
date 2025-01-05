@@ -22,6 +22,10 @@
         .controls input[type="number"] { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; width: 100px; text-align: center; }
         button { padding: 12px 25px; font-size: 16px; margin: 10px 5px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; }
         button:hover { background-color: #45a049; transform: scale(1.05); }
+        #loadingDialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); border-radius: 10px; padding: 20px; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; font-size: 18px; }
+        #loadingDialog .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #4CAF50; border-radius: 50%; animation: spin 1s linear infinite; }
+        #loadingDialog p { margin-top: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .footer { margin-top: 20px; font-size: 14px; color: #888; }
     </style>
 </head>
@@ -45,6 +49,10 @@
             <h2>Tabuleiro Final</h2>
             <div class="grid" id="finalGrid"></div>
         </div>
+        <div id="loadingDialog">
+            <div class="spinner"></div>
+            <p id="attemptCounter">Tentativas: 0</p>
+        </div>
         <div class="footer">© 2024 Hrack Mines - Desenvolvido para diversão!</div>
     </div>
 
@@ -53,11 +61,12 @@
               finalGrid = document.getElementById("finalGrid"),
               bombCountInput = document.getElementById("bombCountInput"),
               randomMarkButton = document.getElementById("randomMarkButton"),
-              playUntilPercentageButton = document.getElementById("playUntilPercentageButton");
+              playUntilPercentageButton = document.getElementById("playUntilPercentageButton"),
+              loadingDialog = document.getElementById("loadingDialog"),
+              attemptCounter = document.getElementById("attemptCounter");
 
-        let markSquares = [], markedBombs = [], squareCount = 25, bombAttempts = [];
+        let markSquares = [], finalSquares = [], markedBombs = [], squareCount = 25, bombAttempts = [], attempt = 0;
 
-        // Inicializa o tabuleiro de marcações
         function initializeMarkBoard() {
             markSquares = [];
             markedBombs = [];
@@ -66,13 +75,14 @@
             for (let i = 0; i < squareCount; i++) {
                 const square = document.createElement("div");
                 square.classList.add("square");
+                square.textContent = "";
                 square.addEventListener("click", () => handleMarkSquareClick(square, i));
                 markGrid.appendChild(square);
                 markSquares.push(square);
+                bombAttempts.push(0);
             }
         }
 
-        // Clique no tabuleiro de marcações
         function handleMarkSquareClick(square, index) {
             const bombCount = parseInt(bombCountInput.value);
             if (markedBombs.includes(index)) {
@@ -86,9 +96,92 @@
             }
         }
 
-        // Geração aleatória de bombas
-        function generateRandomMarks() {
+        function moveBombsUntilPercentage() {
+            attempt = 0;
+            showLoading();
+            document.getElementById("finalContainer").style.display = "block";
+
+            const interval = setInterval(() => {
+                attempt++;
+                updateBombAttempts();
+
+                const maxAttempts = Math.max(...bombAttempts); // Máxima porcentagem
+                const minAttempts = Math.min(...bombAttempts); // Mínima porcentagem
+
+                attemptCounter.textContent = `Tentativas: ${attempt}`;
+
+                if (bombAttempts.filter(count => count === maxAttempts).length === 1) {
+                    clearInterval(interval);
+                    finalizeGame();
+                    hideLoading();
+                }
+            }, 100);
+        }
+
+        function updateBombAttempts() {
+            const bombCount = parseInt(bombCountInput.value);
+            const positions = [...Array(squareCount).keys()];
+            shuffleArray(positions);
+
+            for (let i = 0; i < bombCount; i++) {
+                bombAttempts[positions[i]]++;
+            }
+
+            updateSquares();
+        }
+
+        function updateSquares() {
+            finalGrid.innerHTML = "";
+            finalSquares = [];
+            const maxAttempts = Math.max(...bombAttempts); // Maior porcentagem
+            const minAttempts = Math.min(...bombAttempts); // Menor porcentagem
+
+            bombAttempts.forEach((count, index) => {
+                const square = document.createElement("div");
+                square.classList.add("square");
+                square.textContent = `${count}%`;
+                finalSquares.push(square);
+
+                if (count === maxAttempts) {
+                    square.classList.add("green");
+                } else if (count === minAttempts) {
+                    square.classList.add("red");
+                } else {
+                    square.classList.add("yellow");
+                }
+
+                finalGrid.appendChild(square);
+            });
+        }
+
+        function finalizeGame() {
+            finalSquares.forEach(square => {
+                square.classList.add(square.classList.contains("green") ? "green" : "red");
+            });
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const randomIndex = Math.floor(Math.random() * (i + 1));
+                [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
+            }
+        }
+
+        function showLoading() {
+            loadingDialog.style.display = "flex";
+        }
+
+        function hideLoading() {
+            loadingDialog.style.display = "none";
+        }
+
+        window.onload = () => {
             initializeMarkBoard();
+        };
+
+        randomMarkButton.addEventListener("click", () => {
+            initializeMarkBoard();
+            markedBombs = [];
             const bombCount = parseInt(bombCountInput.value);
             const positions = [...Array(squareCount).keys()];
             shuffleArray(positions);
@@ -98,69 +191,8 @@
                 markSquares[randomIndex].classList.add("bomb");
                 markSquares[randomIndex].textContent = "💣";
             }
-        }
+        });
 
-        // Movimenta bombas até que reste 1 quadrado verde
-        function moveBombsUntilPercentage() {
-            const bombCount = parseInt(bombCountInput.value);
-            bombAttempts = Array(squareCount).fill(0);
-
-            // Simula as tentativas de movimentar bombas
-            const interval = setInterval(() => {
-                const positions = [...Array(squareCount).keys()];
-                shuffleArray(positions);
-
-                bombAttempts.fill(0);
-                for (let i = 0; i < bombCount; i++) {
-                    bombAttempts[positions[i]]++;
-                }
-
-                updateFinalGrid();
-
-                if (bombAttempts.filter(v => v === Math.min(...bombAttempts)).length === 1) {
-                    clearInterval(interval);
-                }
-            }, 100);
-        }
-
-        // Atualiza o tabuleiro final com as porcentagens
-        function updateFinalGrid() {
-            finalGrid.innerHTML = "";
-            const maxAttempts = Math.max(...bombAttempts);
-            const minAttempts = Math.min(...bombAttempts);
-
-            bombAttempts.forEach((attempts, index) => {
-                const square = document.createElement("div");
-                square.classList.add("square");
-                square.textContent = `${attempts}`;
-
-                if (attempts === minAttempts) {
-                    square.classList.add("green");
-                } else if (attempts === maxAttempts) {
-                    square.classList.add("red");
-                } else {
-                    square.classList.add("yellow");
-                }
-
-                finalGrid.appendChild(square);
-            });
-
-            document.getElementById("finalContainer").style.display = "block";
-        }
-
-        // Embaralha um array
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const randomIndex = Math.floor(Math.random() * (i + 1));
-                [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
-            }
-        }
-
-        // Inicializa o jogo
-        window.onload = () => initializeMarkBoard();
-
-        // Eventos dos botões
-        randomMarkButton.addEventListener("click", generateRandomMarks);
         playUntilPercentageButton.addEventListener("click", moveBombsUntilPercentage);
     </script>
 </body>
