@@ -34,26 +34,34 @@
             <input type="number" id="bombCountInput" min="1" max="24" value="3" />
             <div>
                 <button id="randomMarkButton">Marcar Aleatoriamente</button>
+                <button id="playUntilPercentageButton">Play até 1 Quadrado Verde</button>
             </div>
         </div>
         <div>
             <h2>Tabuleiro de Marcações</h2>
             <div class="grid" id="markGrid"></div>
         </div>
+        <div id="finalContainer" style="display: none;">
+            <h2>Tabuleiro Final</h2>
+            <div class="grid" id="finalGrid"></div>
+        </div>
         <div class="footer">© 2024 Hrack Mines - Desenvolvido para diversão!</div>
     </div>
 
     <script>
         const markGrid = document.getElementById("markGrid"),
+              finalGrid = document.getElementById("finalGrid"),
               bombCountInput = document.getElementById("bombCountInput"),
-              randomMarkButton = document.getElementById("randomMarkButton");
+              randomMarkButton = document.getElementById("randomMarkButton"),
+              playUntilPercentageButton = document.getElementById("playUntilPercentageButton");
 
-        let markSquares = [], markedBombs = [], squareCount = 25;
+        let markSquares = [], markedBombs = [], squareCount = 25, bombAttempts = [], attempt = 0;
 
         // Inicializa o tabuleiro de marcações
         function initializeMarkBoard() {
             markSquares = [];
             markedBombs = [];
+            bombAttempts = [];
             markGrid.innerHTML = "";
             for (let i = 0; i < squareCount; i++) {
                 const square = document.createElement("div");
@@ -64,7 +72,7 @@
             }
         }
 
-        // Gerencia o clique nos quadrados do tabuleiro de marcações
+        // Clique no tabuleiro de marcações
         function handleMarkSquareClick(square, index) {
             const bombCount = parseInt(bombCountInput.value);
             if (markedBombs.includes(index)) {
@@ -78,7 +86,7 @@
             }
         }
 
-        // Gera bombas aleatórias no tabuleiro de marcações
+        // Geração aleatória de bombas
         function generateRandomMarks() {
             initializeMarkBoard();
             const bombCount = parseInt(bombCountInput.value);
@@ -92,7 +100,27 @@
             }
         }
 
-        // Embaralha os elementos de um array
+        // Movimenta bombas até que reste 1 quadrado verde
+        function moveBombsUntilPercentage() {
+            attempt = 0;
+            const interval = setInterval(() => {
+                attempt++;
+                const positions = [...Array(squareCount).keys()];
+                shuffleArray(positions);
+
+                bombAttempts = Array(squareCount).fill(0);
+                for (let i = 0; i < markedBombs.length; i++) {
+                    bombAttempts[positions[i]]++;
+                }
+
+                if (Math.min(...bombAttempts) === 1) {
+                    clearInterval(interval);
+                    finalizeGame();
+                }
+            }, 100);
+        }
+
+        // Embaralha um array
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const randomIndex = Math.floor(Math.random() * (i + 1));
@@ -100,13 +128,23 @@
             }
         }
 
-        // Inicializa o jogo ao carregar a página
-        window.onload = () => {
-            initializeMarkBoard();
-        };
+        // Finaliza o jogo
+        function finalizeGame() {
+            finalGrid.innerHTML = "";
+            bombAttempts.forEach((count, index) => {
+                const square = document.createElement("div");
+                square.classList.add("square");
+                square.textContent = count;
+                finalGrid.appendChild(square);
+            });
+        }
 
-        // Evento para o botão "Marcar Aleatoriamente"
+        // Inicialização
+        window.onload = () => initializeMarkBoard();
+
+        // Eventos dos botões
         randomMarkButton.addEventListener("click", generateRandomMarks);
+        playUntilPercentageButton.addEventListener("click", moveBombsUntilPercentage);
     </script>
 </body>
 </html>
