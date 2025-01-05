@@ -38,7 +38,7 @@
             <input type="number" id="bombCountInput" min="1" max="24" value="3" />
             <div>
                 <button id="randomMarkButton">Marcar Aleatoriamente</button>
-                <button id="playUntilPercentageButton">Play até 1 Quadrado Verde</button>
+                <button id="playUntilPercentageButton">Play até 100%</button>
             </div>
         </div>
         <div>
@@ -106,11 +106,10 @@
                 updateBombAttempts();
 
                 const maxAttempts = Math.max(...bombAttempts); // Máxima porcentagem
-                const minAttempts = Math.min(...bombAttempts); // Mínima porcentagem
-
                 attemptCounter.textContent = `Tentativas: ${attempt}`;
 
-                if (bombAttempts.filter(count => count === maxAttempts).length === 1) {
+                // Verifica se algum quadrado chegou a 100%
+                if (bombAttempts.includes(100)) {
                     clearInterval(interval);
                     finalizeGame();
                     hideLoading();
@@ -123,10 +122,12 @@
             const positions = [...Array(squareCount).keys()];
             shuffleArray(positions);
 
+            // Incrementa as tentativas de cada posição aleatória
             for (let i = 0; i < bombCount; i++) {
                 bombAttempts[positions[i]]++;
             }
 
+            // Atualiza as porcentagens nos quadrados
             updateSquares();
         }
 
@@ -142,12 +143,13 @@
                 square.textContent = `${count}%`;
                 finalSquares.push(square);
 
-                if (count === maxAttempts) {
+                // Verifica e aplica as cores
+                if (count === 100) {
                     square.classList.add("green");
+                } else if (count === maxAttempts) {
+                    square.classList.add("yellow");
                 } else if (count === minAttempts) {
                     square.classList.add("red");
-                } else {
-                    square.classList.add("yellow");
                 }
 
                 finalGrid.appendChild(square);
@@ -194,6 +196,4 @@
         });
 
         playUntilPercentageButton.addEventListener("click", moveBombsUntilPercentage);
-    </script>
-</body>
-</html>
+    </script
