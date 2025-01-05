@@ -55,7 +55,7 @@
               randomMarkButton = document.getElementById("randomMarkButton"),
               playUntilPercentageButton = document.getElementById("playUntilPercentageButton");
 
-        let markSquares = [], markedBombs = [], squareCount = 25, bombAttempts = [], attempt = 0;
+        let markSquares = [], markedBombs = [], squareCount = 25, bombAttempts = [];
 
         // Inicializa o tabuleiro de marcações
         function initializeMarkBoard() {
@@ -102,22 +102,50 @@
 
         // Movimenta bombas até que reste 1 quadrado verde
         function moveBombsUntilPercentage() {
-            attempt = 0;
+            const bombCount = parseInt(bombCountInput.value);
+            bombAttempts = Array(squareCount).fill(0);
+
+            // Simula as tentativas de movimentar bombas
             const interval = setInterval(() => {
-                attempt++;
                 const positions = [...Array(squareCount).keys()];
                 shuffleArray(positions);
 
-                bombAttempts = Array(squareCount).fill(0);
-                for (let i = 0; i < markedBombs.length; i++) {
+                bombAttempts.fill(0);
+                for (let i = 0; i < bombCount; i++) {
                     bombAttempts[positions[i]]++;
                 }
 
-                if (Math.min(...bombAttempts) === 1) {
+                updateFinalGrid();
+
+                if (bombAttempts.filter(v => v === Math.min(...bombAttempts)).length === 1) {
                     clearInterval(interval);
-                    finalizeGame();
                 }
             }, 100);
+        }
+
+        // Atualiza o tabuleiro final com as porcentagens
+        function updateFinalGrid() {
+            finalGrid.innerHTML = "";
+            const maxAttempts = Math.max(...bombAttempts);
+            const minAttempts = Math.min(...bombAttempts);
+
+            bombAttempts.forEach((attempts, index) => {
+                const square = document.createElement("div");
+                square.classList.add("square");
+                square.textContent = `${attempts}`;
+
+                if (attempts === minAttempts) {
+                    square.classList.add("green");
+                } else if (attempts === maxAttempts) {
+                    square.classList.add("red");
+                } else {
+                    square.classList.add("yellow");
+                }
+
+                finalGrid.appendChild(square);
+            });
+
+            document.getElementById("finalContainer").style.display = "block";
         }
 
         // Embaralha um array
@@ -128,18 +156,7 @@
             }
         }
 
-        // Finaliza o jogo
-        function finalizeGame() {
-            finalGrid.innerHTML = "";
-            bombAttempts.forEach((count, index) => {
-                const square = document.createElement("div");
-                square.classList.add("square");
-                square.textContent = count;
-                finalGrid.appendChild(square);
-            });
-        }
-
-        // Inicialização
+        // Inicializa o jogo
         window.onload = () => initializeMarkBoard();
 
         // Eventos dos botões
