@@ -76,23 +76,9 @@
                 const square = document.createElement("div");
                 square.classList.add("square");
                 square.textContent = "";
-                square.addEventListener("click", () => handleMarkSquareClick(square, i));
                 markGrid.appendChild(square);
                 markSquares.push(square);
                 bombAttempts.push(0);
-            }
-        }
-
-        function handleMarkSquareClick(square, index) {
-            const bombCount = parseInt(bombCountInput.value);
-            if (markedBombs.includes(index)) {
-                square.classList.remove("bomb");
-                square.textContent = "";
-                markedBombs = markedBombs.filter(e => e !== index);
-            } else if (markedBombs.length < bombCount) {
-                square.classList.add("bomb");
-                square.textContent = "💣";
-                markedBombs.push(index);
             }
         }
 
@@ -105,16 +91,11 @@
                 attempt++;
                 updateBombAttempts();
 
-                const minAttempts = Math.min(...bombAttempts);
-                const greenSquares = bombAttempts.filter(count => count === minAttempts).length;
-
                 attemptCounter.textContent = `Tentativas: ${attempt}`;
 
-                if (greenSquares === 1) {
-                    clearInterval(interval);
-                    finalizeGame();
-                    hideLoading();
-                }
+                clearInterval(interval);
+                finalizeGame();
+                hideLoading();
             }, 100);
         }
 
@@ -133,6 +114,7 @@
         function updateSquares() {
             finalGrid.innerHTML = "";
             finalSquares = [];
+            const maxAttempts = Math.max(...bombAttempts);
             const minAttempts = Math.min(...bombAttempts);
             bombAttempts.forEach((count, index) => {
                 const square = document.createElement("div");
@@ -140,21 +122,15 @@
                 square.textContent = `${count}%`;
                 finalSquares.push(square);
 
-                if (count === minAttempts) {
+                if (count === maxAttempts) {
                     square.classList.add("green");
-                } else if (count > minAttempts && count < Math.max(...bombAttempts)) {
-                    square.classList.add("yellow");
-                } else {
+                } else if (count === minAttempts) {
                     square.classList.add("red");
+                } else {
+                    square.classList.add("yellow");
                 }
 
                 finalGrid.appendChild(square);
-            });
-        }
-
-        function finalizeGame() {
-            finalSquares.forEach(square => {
-                square.classList.add(square.classList.contains("green") ? "green" : "red");
             });
         }
 
@@ -179,16 +155,6 @@
 
         randomMarkButton.addEventListener("click", () => {
             initializeMarkBoard();
-            markedBombs = [];
-            const bombCount = parseInt(bombCountInput.value);
-            const positions = [...Array(squareCount).keys()];
-            shuffleArray(positions);
-            for (let i = 0; i < bombCount; i++) {
-                const randomIndex = positions[i];
-                markedBombs.push(randomIndex);
-                markSquares[randomIndex].classList.add("bomb");
-                markSquares[randomIndex].textContent = "💣";
-            }
         });
 
         playUntilPercentageButton.addEventListener("click", moveBombsUntilPercentage);
