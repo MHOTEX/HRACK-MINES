@@ -102,15 +102,15 @@
             document.getElementById("finalContainer").style.display = "block"; // Exibe o tabuleiro final logo após o clique
             const interval = setInterval(() => {
                 attempt++;
-                attemptCounter.textContent = `Tentativas: ${Math.min(attempt, 100)}%`;
-                if (attempt >= 100) {
+                attemptCounter.textContent = `Tentativas: ${Math.min(attempt, 101)}%`;
+                if (attempt >= 101) {
                     clearInterval(interval);
                     finalizeGame();
                     hideLoading();
                 } else {
                     updateBombAttempts();
                 }
-            }, 100);
+            }, 101);
         }
 
         function updateBombAttempts() {
