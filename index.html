@@ -5,28 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hrack Mines</title>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Arial',sans-serif;background-color:#f4f4f9;color:#333;text-align:center;padding:20px}
-        h1{font-size:2.5em;margin-bottom:20px;color:#4CAF50}
-        h2{font-size:1.8em;margin:20px 0 15px;color:#555}
-        .container{max-width:900px;margin:0 auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 4px 10px rgba(0,0,0,0.1)}
-        .grid{display:grid;grid-template-columns:repeat(5,60px);grid-gap:10px;justify-content:center;margin-bottom:20px}
-        .square{width:60px;height:60px;display:flex;justify-content:center;align-items:center;font-size:18px;font-weight:bold;background-color:#e0e0e0;border-radius:10px;border:1px solid #ccc;cursor:pointer;transition:background-color 0.2s ease,transform 0.2s ease}
-        .square:hover{background-color:#ddd;transform:scale(1.1)}
-        .bomb{background-color:#f44336;color:white;font-size:24px}
-        .green{background-color:#4CAF50;color:white}
-        .yellow{background-color:#FFEB3B;color:black}
-        .red{background-color:#FF5722;color:white}
-        .controls{margin-bottom:30px}
-        .controls label{font-size:16px;display:block;margin-bottom:8px}
-        .controls input[type="number"]{padding:10px;font-size:16px;border-radius:5px;border:1px solid #ccc;width:100px;text-align:center}
-        button{padding:12px 25px;font-size:16px;margin:10px 5px;background-color:#4CAF50;color:white;border:none;border-radius:8px;cursor:pointer;transition:background-color 0.3s ease,transform:scale(1.05)}
-        button:hover{background-color:#45a049;transform:scale(1.05)}
-        #loadingDialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.8);border-radius:10px;padding:20px;display:none;flex-direction:column;justify-content:center;align-items:center;color:white;font-size:18px}
-        #loadingDialog .spinner{width:50px;height:50px;border:5px solid #f3f3f3;border-top:5px solid #4CAF50;border-radius:50%;animation:spin 1s linear infinite}
-        #loadingDialog p{margin-top:10px}
-        @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-        .footer{margin-top:20px;font-size:14px;color:#888}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background-color: #f4f4f9; color: #333; text-align: center; padding: 20px; }
+        h1 { font-size: 2.5em; margin-bottom: 20px; color: #4CAF50; }
+        h2 { font-size: 1.8em; margin: 20px 0 15px; color: #555; }
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: repeat(5, 60px); grid-gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .square { width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; background-color: #e0e0e0; border-radius: 10px; border: 1px solid #ccc; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; }
+        .square:hover { background-color: #ddd; transform: scale(1.1); }
+        .bomb { background-color: #f44336; color: white; font-size: 24px; }
+        .green { background-color: #4CAF50; color: white; }
+        .yellow { background-color: #FFEB3B; color: black; }
+        .red { background-color: #FF5722; color: white; }
+        .controls { margin-bottom: 30px; }
+        .controls label { font-size: 16px; display: block; margin-bottom: 8px; }
+        .controls input[type="number"] { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; width: 100px; text-align: center; }
+        button { padding: 12px 25px; font-size: 16px; margin: 10px 5px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; }
+        button:hover { background-color: #45a049; transform: scale(1.05); }
+        #loadingDialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); border-radius: 10px; padding: 20px; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; font-size: 18px; }
+        #loadingDialog .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #4CAF50; border-radius: 50%; animation: spin 1s linear infinite; }
+        #loadingDialog p { margin-top: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .footer { margin-top: 20px; font-size: 14px; color: #888; }
     </style>
 </head>
 <body>
@@ -35,23 +35,23 @@
         <div class="controls">
             <h2>Configurações</h2>
             <label for="bombCountInput">Número de bombas (1-24):</label>
-            <input type="number" id="bombCountInput" min="1" max="24" value="3"/>
+            <input type="number" id="bombCountInput" min="1" max="24" value="3" />
             <div>
                 <button id="randomMarkButton">Marcar Aleatoriamente</button>
-                <button id="playUntilPercentageButton">Play até encontrar %</button>
+                <button id="playUntilPercentageButton">Play até 1 Quadrado Verde</button>
             </div>
         </div>
         <div>
             <h2>Tabuleiro de Marcações</h2>
             <div class="grid" id="markGrid"></div>
         </div>
-        <div id="finalContainer" style="display:none;">
+        <div id="finalContainer" style="display: none;">
             <h2>Tabuleiro Final</h2>
             <div class="grid" id="finalGrid"></div>
         </div>
         <div id="loadingDialog">
             <div class="spinner"></div>
-            <p id="attemptCounter">Tentativas: 0%</p>
+            <p id="attemptCounter">Tentativas: 0</p>
         </div>
         <div class="footer">© 2024 Hrack Mines - Desenvolvido para diversão!</div>
     </div>
@@ -79,7 +79,7 @@
                 square.addEventListener("click", () => handleMarkSquareClick(square, i));
                 markGrid.appendChild(square);
                 markSquares.push(square);
-                bombAttempts.push(0);  // Inicializando as tentativas para cada quadrado
+                bombAttempts.push(0);
             }
         }
 
@@ -91,7 +91,7 @@
                 markedBombs = markedBombs.filter(e => e !== index);
             } else if (markedBombs.length < bombCount) {
                 square.classList.add("bomb");
-                square.textContent = "";
+                square.textContent = "💣";
                 markedBombs.push(index);
             }
         }
@@ -99,18 +99,23 @@
         function moveBombsUntilPercentage() {
             attempt = 0;
             showLoading();
-            document.getElementById("finalContainer").style.display = "block"; // Exibe o tabuleiro final logo após o clique
+            document.getElementById("finalContainer").style.display = "block";
+
             const interval = setInterval(() => {
                 attempt++;
-                attemptCounter.textContent = `Tentativas: ${Math.min(attempt, 101)}%`;
-                if (attempt >= 101) {
+                updateBombAttempts();
+
+                const minAttempts = Math.min(...bombAttempts);
+                const greenSquares = bombAttempts.filter(count => count === minAttempts).length;
+
+                attemptCounter.textContent = `Tentativas: ${attempt}`;
+
+                if (greenSquares === 1) {
                     clearInterval(interval);
                     finalizeGame();
                     hideLoading();
-                } else {
-                    updateBombAttempts();
                 }
-            }, 101);
+            }, 100);
         }
 
         function updateBombAttempts() {
@@ -118,7 +123,6 @@
             const positions = [...Array(squareCount).keys()];
             shuffleArray(positions);
 
-            // Incrementa a quantidade de tentativas para os quadrados com bomb
             for (let i = 0; i < bombCount; i++) {
                 bombAttempts[positions[i]]++;
             }
@@ -129,15 +133,16 @@
         function updateSquares() {
             finalGrid.innerHTML = "";
             finalSquares = [];
+            const minAttempts = Math.min(...bombAttempts);
             bombAttempts.forEach((count, index) => {
                 const square = document.createElement("div");
                 square.classList.add("square");
-                finalSquares.push(square);
                 square.textContent = `${count}%`;
+                finalSquares.push(square);
 
-                if (count === Math.min(...bombAttempts)) {
+                if (count === minAttempts) {
                     square.classList.add("green");
-                } else if (count > Math.min(...bombAttempts) && count < Math.max(...bombAttempts)) {
+                } else if (count > minAttempts && count < Math.max(...bombAttempts)) {
                     square.classList.add("yellow");
                 } else {
                     square.classList.add("red");
@@ -182,11 +187,11 @@
                 const randomIndex = positions[i];
                 markedBombs.push(randomIndex);
                 markSquares[randomIndex].classList.add("bomb");
-                markSquares[randomIndex].textContent = "";
+                markSquares[randomIndex].textContent = "💣";
             }
         });
 
         playUntilPercentageButton.addEventListener("click", moveBombsUntilPercentage);
     </script>
 </body>
-</
+</html>
